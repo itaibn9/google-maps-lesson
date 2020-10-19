@@ -4,6 +4,7 @@ import { withScriptjs, withGoogleMap, GoogleMap, Marker, Circle, Polyline, InfoW
 import './App.css';
 import LocationsData from './LocationsData';
 import MapHeader from './MapHeader';
+import Modal from './Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -79,6 +80,7 @@ function Map() {
   };
   
   const onMapClick = async (e) => {
+    if(playsCounter > 0){
       const randomCoordinate = new google.maps.LatLng(randomPosition[0].Y, randomPosition[0].X)
       const guessedDistance = getDistance(randomCoordinate, e.latLng);
       const totalpoints = pointsPerGuess + calculatePoints(guessedDistance  / 1000 )
@@ -93,6 +95,7 @@ function Map() {
         setDistance()
       }, 3000)
     }
+    }
 
     const calculatePoints = ((guessedDistance) => {
      if(guessedDistance < 10) return 100;
@@ -103,19 +106,27 @@ function Map() {
      else return 5;
     })
 
-useEffect(()=> {
-  if(playsCounter === 0){
-    setTimeout(() => {
-      if(pointsPerGuess === 500 && pointsPerGuess !== 0) alert("You got the maximum points per game!")
-      else alert(`You got ${pointsPerGuess}! you can do Better!`)
+    const refreshGame = () => {
       setRandomPosition([LocationsData[getRandomInt(LocationsData.length)]])
       setIsMarkerShown(false)
       setDistance()
       setPointsPerGuess(0)
       setPlaysCounter(5);
-    }, 4000)
-  }
-}, [isMarkerShown])
+    }
+
+// useEffect(()=> {
+//   if(playsCounter === 0){
+//     setTimeout(() => {
+//       // if(pointsPerGuess === 500 && pointsPerGuess !== 0) alert("You got the maximum points per game!")
+//       // else alert(`You got ${pointsPerGuess}! you can do Better!`)
+//       setRandomPosition([LocationsData[getRandomInt(LocationsData.length)]])
+//       setIsMarkerShown(false)
+//       setDistance()
+//       setPointsPerGuess(0)
+//       setPlaysCounter(5);
+//     }, 4000)
+//   }
+// }, [isMarkerShown])
 
      
     
@@ -186,6 +197,7 @@ useEffect(()=> {
       </FormControl>
       </div>
     <MapHeader location={randomPosition} pointsPerGuess={pointsPerGuess} distance={distance} />
+    <Modal playsCounter={playsCounter} points={pointsPerGuess} refreshGame={refreshGame}/>
 <MapWithAMarker
   googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${API_KEY}&v=3.exp&libraries=geometry,drawing,places,sphericals`}
   loadingElement={<div style={{ height: `100%` }} />}
